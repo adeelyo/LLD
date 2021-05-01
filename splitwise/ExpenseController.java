@@ -25,9 +25,12 @@ public class ExpenseController {
     public static void createExpense(String[] input) {
         List<Integer> users = new ArrayList<>();
         users.add(Integer.parseInt(input[0]));
-        int i;
+        boolean isForGroup = isExpenseForGroup(input);
+        int i=2;
+        if(isForGroup)
+            i++;
         String payMethod = "";
-        for(i=2;i<input.length;i++) {
+        for(;i<input.length;i++) {
             if(!payMethod.contains(input[i])){
                 users.add(getUser(input[i]));
             }else{
@@ -62,6 +65,11 @@ public class ExpenseController {
         desc.delete(desc.length()-1, desc.length());
         addExpense(desc.toString(), payMethod, splitMethod);
         Expense expense =  ExpenseRepository.findExpenseByDescription(desc.toString());
+        if(isForGroup){
+            //add group expense as well
+            GroupController.createGroupExpense(getUser(input[2]), expense.getExpenseId());
+        }
+
         List<Integer> percentages=null;
         if(splitMethod.equals("Percentage")){
             percentages = new ArrayList<>();
@@ -73,6 +81,14 @@ public class ExpenseController {
             }
         }
         addUserExpenses(expense, users, payments, percentages);
+    }
+
+    private static boolean isExpenseForGroup(String[] input) {
+        String s = input[2];
+        if(s.charAt(0)=='g'){
+            return true;
+        }
+        return false;
     }
 
     private static void addUserExpenses(Expense expense, List<Integer> users, List<Integer> payments, List<Integer> percentages){
