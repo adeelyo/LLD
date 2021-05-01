@@ -100,5 +100,9 @@ public class UserController {
         }
     }
 
-    
+    public static void addExpense(String string) {
+        ExpenseController.createExpense(string.split(" "));
+    }
+
+
 }

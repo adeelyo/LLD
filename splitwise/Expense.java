@@ -11,4 +11,13 @@ public class Expense {
         this.paidBy = paidBy;
         this.splitMethod = splitMethod;
     }
+    public String getPayMethod(){
+        return this.paidBy;
+    }
+    public String getSplitMethod() {
+        return this.splitMethod;
+    }
+    public int getExpenseId(){
+        return this.expenseId;
+    }
 }

@@ -11,6 +11,14 @@ public class ExpenseRepository {
                 +" Where ExpenseId = "+expenseId;
         return executeQuery(query, connection);
     }
+
+    public static Expense findExpenseByDescription(String description) {
+        Connection connection = DatabaseConnection.getDatabaseConnectionInstance();
+        String query = "Select * from Expense"
+                +" Where description = "+description;
+        return executeQuery(query, connection);
+    }
+
     private static Expense executeQuery(String query, Connection connection) {
         try{
             ResultSet result = connection.createStatement().executeQuery(query);
