@@ -29,16 +29,13 @@ public class EqualSplitStrategy implements SplitStrategy{
             double equalDoubleAmount=(double)totalPayment/users.size();
             int equalIntegerAmount = totalPayment/users.size();
             boolean equal = Math.ceil(equalDoubleAmount)==equalIntegerAmount;
-            int i=0;
+            int i;
             Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
-            String query = "Insert Into UserExpense (userId, expenseId, paid, owe)"
-                    +"Values ("+users.get(i)+", "+expense.getExpenseId()+", "+payments.get(i)+", "+equalIntegerAmount+");";
-            executeQuery(conn, query);
-            for(i=1;i<users.size();i++) {
+            for(i=0;i<users.size();i++) {
                 if(i==users.size()-1 && !equal){
                     equalIntegerAmount++;
                 }
-                query = "Insert Into UserExpense (userId, expenseId, paid, owe)"
+                String query = "Insert Into UserExpense (userId, expenseId, paid, owe)"
                         +"Values ("+users.get(i)+", "+expense.getExpenseId()+", "+payments.get(i)+", "+equalIntegerAmount+");";
                 executeQuery(conn, query);
             }

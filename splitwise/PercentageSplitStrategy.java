@@ -20,9 +20,9 @@ public class PercentageSplitStrategy implements SplitStrategy{
                 executeQuery(conn, query);
             }
         }else if(expense.getPayMethod().equals("MultiPay")){
-            int i=0;
+            int i;
             Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
-            for(i=1;i<users.size();i++) {
+            for(i=0;i<users.size();i++) {
                 String query = "Insert Into UserExpense (userId, expenseId, paid, owe)"
                         +"Values ("+users.get(i)+", "+expense.getExpenseId()+", "+payments.get(i)+", "+((totalPayment*percentages.get(i))/100)+");";
                 executeQuery(conn, query);
