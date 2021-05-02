@@ -20,4 +20,7 @@ public class Expense {
     public int getExpenseId(){
         return this.expenseId;
     }
+    public String getDescription() {
+        return this.description;
+    }
 }

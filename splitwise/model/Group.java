@@ -12,4 +12,10 @@ public class Group {
     public String getTitle(){
         return this.title;
     }
+    public int getGroupId(){
+        return this.groupId;
+    }
+    public User getAdmin() {
+        return this.admin;
+    }
 }

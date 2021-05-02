@@ -14,4 +14,10 @@ public class User {
     public int getUserId(){
         return this.userId;
     }
+    public String getUserName() {
+        return this.userName;
+    }
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
 }

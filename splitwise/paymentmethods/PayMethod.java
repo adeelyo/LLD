@@ -1,5 +1,7 @@
 package com.LLD.splitwise.paymentmethods;
 
-public interface PayMethod {
+import java.util.List;
 
+public interface PayMethod {
+    public List<Integer> calculatePayAmount(List<Integer> users, List<Integer> payments);
 }

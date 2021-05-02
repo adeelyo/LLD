@@ -2,6 +2,7 @@ package com.LLD.splitwise.splitstrategy;
 
 import com.LLD.splitwise.model.Expense;
 import com.LLD.splitwise.db.DatabaseConnection;
+import com.LLD.splitwise.paymentmethods.PayMethodFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,19 +11,18 @@ import java.util.List;
 
 public class RatioSplitStrategy implements SplitStrategy{
     private static final String TAG ="RatioSplitStrategy";
+    private static final Connection connection = DatabaseConnection.getDatabaseConnectionInstance();
     public void calculateAmount(Expense expense, List<Integer> users, List<Integer> payments, List<Integer> percentages){
         int totalRatio =  payments.stream().mapToInt(Integer::intValue).sum();
-        int i=0;
-        Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
         String query = "Insert Into UserExpense (?, ?, ?, ?)"
                 +"Values (?, ?, ?, ?);";
-        executeQuery(conn, query, users.get(i), expense.getExpenseId(), payments.get(i), payments.get(i)/totalRatio);
-        for(i=1;i<users.size();i++) {
-            executeQuery(conn, query, users.get(i), expense.getExpenseId(), 0, payments.get(i)/totalRatio);
+        List<Integer> payAmounts = PayMethodFactory.getSinglePayMethod().calculatePayAmount(users, payments);
+        for(int i=0;i<users.size();i++) {
+            executeQuery(query, users.get(i), expense.getExpenseId(), payAmounts.get(i), payments.get(i)/totalRatio);
         }
     }
 
-    private void executeQuery(Connection connection, String query, int i1, int i2, int i3, int i4) {
+    private void executeQuery(String query, int i1, int i2, int i3, int i4) {
         try{
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, "userId");
