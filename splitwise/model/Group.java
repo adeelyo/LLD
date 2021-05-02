@@ -1,4 +1,4 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.model;
 
 public class Group {
     private int groupId;

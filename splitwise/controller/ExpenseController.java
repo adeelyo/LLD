@@ -1,6 +1,13 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.controller;
+
+import com.LLD.splitwise.repositories.ExpenseRepository;
+import com.LLD.splitwise.db.DatabaseConnection;
+import com.LLD.splitwise.model.Expense;
+import com.LLD.splitwise.splitstrategy.SplitStrategy;
+import com.LLD.splitwise.splitstrategy.SplitStrategyFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -98,11 +105,18 @@ public class ExpenseController {
 
     private static void addExpense(String description, String payMethod, String splitMethod){
         Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
-        String query = "Insert into Expense (description, paidBy, splitMethod)"
-                +"Values ('"+description+"', '"+payMethod+"', '"+splitMethod+"');";
+        String query = "Insert into Expense (?, ?, ?)"
+                +"Values (?,?,?);";
         System.out.println(TAG+": adding expense query: "+query);
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, "description");
+            statement.setString(2, "paidBy");
+            statement.setString(3, "splitMethod");
+            statement.setString(4, description);
+            statement.setString(5, payMethod);
+            statement.setString(6, splitMethod);
+            ResultSet result = statement.executeQuery(query);
             System.out.println(TAG+": result of adding expense: "+result);
         }catch(Exception e) {
             System.out.println(TAG+": cannot insert");

@@ -1,6 +1,10 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.repositories;
+
+import com.LLD.splitwise.db.DatabaseConnection;
+import com.LLD.splitwise.model.Expense;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class ExpenseRepository {
@@ -8,20 +12,22 @@ public class ExpenseRepository {
     public static Expense findExpenseById(int expenseId) {
         Connection connection = DatabaseConnection.getDatabaseConnectionInstance();
         String query = "Select * from Expense"
-                +" Where ExpenseId = "+expenseId;
-        return executeQuery(query, connection);
+                +" Where ExpenseId = ?";
+        return executeQuery(query, connection, String.valueOf(expenseId));
     }
 
     public static Expense findExpenseByDescription(String description) {
         Connection connection = DatabaseConnection.getDatabaseConnectionInstance();
         String query = "Select * from Expense"
-                +" Where description = "+description;
-        return executeQuery(query, connection);
+                +" Where description = ?";
+        return executeQuery(query, connection, description);
     }
 
-    private static Expense executeQuery(String query, Connection connection) {
+    private static Expense executeQuery(String query, Connection connection, String value) {
         try{
-            ResultSet result = connection.createStatement().executeQuery(query);
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, value);
+            ResultSet result = statement.executeQuery();
             while(result.next()){
                 int expenseId = result.getInt("ExpenseId");
                 String description = result.getString("description");

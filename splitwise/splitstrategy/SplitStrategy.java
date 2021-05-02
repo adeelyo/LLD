@@ -1,4 +1,6 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.splitstrategy;
+
+import com.LLD.splitwise.model.Expense;
 
 import java.util.List;
 

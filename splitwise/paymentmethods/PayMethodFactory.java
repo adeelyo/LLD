@@ -1,4 +1,4 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.paymentmethods;
 
 public class PayMethodFactory {
     public static PayMethod getPayMethod(String payMethod) {

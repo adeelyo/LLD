@@ -1,4 +1,4 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.splitstrategy;
 
 public class SplitStrategyFactory {
     private static final String EQUAL = "Equal";

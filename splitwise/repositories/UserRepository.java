@@ -1,4 +1,7 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.repositories;
+import com.LLD.splitwise.db.DatabaseConnection;
+import com.LLD.splitwise.model.User;
+
 import java.sql.*;
 
 public class UserRepository {
@@ -6,24 +9,26 @@ public class UserRepository {
     public static User findUserById(int userId){
         Connection connection = DatabaseConnection.getDatabaseConnectionInstance();
         String query = " Select * from User"+
-                " Where userId = "+userId;
-        return executeQuery(query, connection);
+                " Where userId = ?";
+        return executeQuery(query, connection, String.valueOf(userId));
     }
     public static User findUserByName(String name){
         Connection connection = DatabaseConnection.getDatabaseConnectionInstance();
         String query = " Select * from User"+
-                " Where userName = "+name;
-        return executeQuery(query, connection);
+                " Where userName = ?";
+        return executeQuery(query, connection, name);
     }
     public static User findUserByPhoneNumber(String phoneNumber) {
         Connection connection = DatabaseConnection.getDatabaseConnectionInstance();
         String query = " Select * from User"+
-                " Where phoneNumber = "+phoneNumber;
-        return executeQuery(query, connection);
+                " Where phoneNumber = ?";
+        return executeQuery(query, connection, phoneNumber);
     }
-    private static User executeQuery(String query, Connection connection) {
+    private static User executeQuery(String query, Connection connection, String value) {
         try{
-            ResultSet result = connection.createStatement().executeQuery(query);
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1,value);
+            ResultSet result = statement.executeQuery(query);
             while(result.next()){
                 int userId = result.getInt("userId");
                 String name = result.getString("userName");

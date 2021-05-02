@@ -1,6 +1,10 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.splitstrategy;
+
+import com.LLD.splitwise.model.Expense;
+import com.LLD.splitwise.db.DatabaseConnection;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
@@ -13,16 +17,14 @@ public class EqualSplitStrategy implements SplitStrategy{
             boolean equal = Math.ceil(equalDoubleAmount)==equalIntegerAmount;
             int i=0;
             Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
-            String query = "Insert Into UserExpense (userId, expenseId, paid, owe)"
-                    +"Values ("+users.get(i)+", "+expense.getExpenseId()+", "+payments.get(i)+", "+equalIntegerAmount+");";
-            executeQuery(conn, query);
+            String query = "Insert Into UserExpense (?, ?, ?, ?)"
+                    +"Values (?, ?, ?, ?);";
+            executeQuery(conn, query, users.get(i), expense.getExpenseId(), payments.get(i), equalIntegerAmount);
             for(i=1;i<users.size();i++) {
                 if(i==users.size()-1 && !equal){
                     equalIntegerAmount++;
                 }
-                query = "Insert Into UserExpense (userId, expenseId, paid, owe)"
-                        +"Values ("+users.get(i)+", "+expense.getExpenseId()+", 0, "+equalIntegerAmount+");";
-                executeQuery(conn, query);
+                executeQuery(conn, query, users.get(i), expense.getExpenseId(), 0, equalIntegerAmount);
             }
         }else if(expense.getPayMethod().equals("MultiPay")){
             int totalPayment =  payments.stream().mapToInt(Integer::intValue).sum();
@@ -35,16 +37,25 @@ public class EqualSplitStrategy implements SplitStrategy{
                 if(i==users.size()-1 && !equal){
                     equalIntegerAmount++;
                 }
-                String query = "Insert Into UserExpense (userId, expenseId, paid, owe)"
-                        +"Values ("+users.get(i)+", "+expense.getExpenseId()+", "+payments.get(i)+", "+equalIntegerAmount+");";
-                executeQuery(conn, query);
+                String query = "Insert Into UserExpense (?, ?, ?, ?)"
+                        +"Values (?, ?, ?, ?);";
+                executeQuery(conn, query, users.get(i), expense.getExpenseId(), payments.get(i), equalIntegerAmount);
             }
         }
     }
 
-    private void executeQuery(Connection connection, String query) {
+    private void executeQuery(Connection connection, String query, int i1, int i2, int i3, int i4) {
         try{
-            ResultSet result = connection.createStatement().executeQuery(query);
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, "userId");
+            statement.setString(2, "expenseId");
+            statement.setString(3, "paid");
+            statement.setString(4, "owe");
+            statement.setInt(5, i1);
+            statement.setInt(6, i2);
+            statement.setInt(7, i3);
+            statement.setInt(8, i4);
+            ResultSet result = statement.executeQuery(query);
         }catch (Exception e) {
             System.out.println(TAG+": error in adding userExpense");
             e.printStackTrace();

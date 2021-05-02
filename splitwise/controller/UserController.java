@@ -1,6 +1,11 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.controller;
+
+import com.LLD.splitwise.repositories.GroupRepository;
+import com.LLD.splitwise.db.DatabaseConnection;
+import com.LLD.splitwise.model.Group;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class UserController {
@@ -13,6 +18,7 @@ public class UserController {
     private static final String HISTORY ="History";
     private static final String GROUPS = "Groups";
     private static final String EXPENSE= "Expense";
+    private static final Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
     public static void handleInput(String userInput){
         String[] input = userInput.split(" ");
         int userId = getUser(input[0]);
@@ -36,12 +42,18 @@ public class UserController {
         }
     }
     private static void registerUser(String name, String phoneNumber, String password) {
-        Connection conn  = DatabaseConnection.getDatabaseConnectionInstance();
-        String query = "Insert Into User (userName, phoneNumber, password)"
-                +"Values ('"+name+"', '"+phoneNumber+"', '"+password+"');";
+        String query = "Insert into User (?, ?, ?)"
+                +"Values (?, ?, ?);";
         System.out.println(TAG+": insert query: "+query);
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, "userName");
+            statement.setString(2, "phoneNumber");
+            statement.setString(3, "password");
+            statement.setString(4, name);
+            statement.setString(5, phoneNumber);
+            statement.setString(6, password);
+            ResultSet result = statement.executeQuery(query);
             System.out.println(TAG+": result of insertion: "+result);
         }catch(Exception e) {
             System.out.println(TAG+": cannot insert");
@@ -50,13 +62,15 @@ public class UserController {
     }
 
     private static void updatePassword(int userId, String newPassword) {
-        Connection conn  = DatabaseConnection.getDatabaseConnectionInstance();
         String query = "Update User"
-                +"Set password = "+newPassword
-                +"Where userId = "+userId;
+                +"Set password = ?"
+                +"Where userId = ?;";
         System.out.println(TAG+": update query: "+query);
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, newPassword);
+            statement.setInt(2, userId);
+            ResultSet result = statement.executeQuery(query);
             System.out.println(TAG+": result of update: "+result);
 
         }catch(Exception e) {
@@ -66,12 +80,16 @@ public class UserController {
     }
 
     private static void addGroup(int userId, String title) {
-        Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
-        String query = "Insert into Groups (title, userId)"
-                +"Values ('"+title+"', "+userId+");";
+        String query = "Insert into Groups (?, ?)"
+                +"Values (?, ?);";
         System.out.println(TAG+": addGroup "+query);
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, "title");
+            statement.setString(2, "userId");
+            statement.setString(3, title);
+            statement.setInt(4, userId);
+            ResultSet result = statement.executeQuery(query);
             System.out.println(TAG+": result of inserting in group: "+result);
 
         }catch(Exception e) {
@@ -81,12 +99,16 @@ public class UserController {
     }
 
     private static void addMembersToGroup(int groupId, int member) {
-        Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
-        String query = "Insert into GroupMembers (groupId, userId)"
-                +"Values ("+groupId+", "+member+");";
+        String query = "Insert INTO GroupMembers (?, ?)"
+                +"Values (?, ?);";
         System.out.println(TAG+": addMemberToGroup "+query);
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, "groupId");
+            statement.setString(2, "userId");
+            statement.setInt(3, groupId);
+            statement.setInt(4, member);
+            ResultSet result = statement.executeQuery(query);
             System.out.println(TAG+": result of adding member in group: "+result);
 
         }catch(Exception e) {
@@ -95,12 +117,13 @@ public class UserController {
         }
     }
     private static void checkTransactionHistory(int userId) {
-        Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
         String query = "Select * from UserExpense "
-                +"Where userId = "+userId;
+                +"Where userId = ?;";
         System.out.println(TAG+": check transaction "+query);
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setInt(1, userId);
+            ResultSet result = statement.executeQuery(query);
             while(result.next()) {
                 System.out.println("paid: "+result.getInt("paid")+", owed: "+result.getInt("owe"));
             }
@@ -112,11 +135,13 @@ public class UserController {
     }
 
     private static void checkHistory(int userId) {
-        Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
-        String query = "Select SUM(owe) from UserExpense AS \"Amount Owed\""
-                +"Where userId = "+userId;
+        String query = "Select SUM(?) from UserExpense AS \"Amount Owed\""
+                +"Where userId = ?;";
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, "owe");
+            statement.setInt(2, userId);
+            ResultSet result = statement.executeQuery(query);
             while(result.next()) {
                 System.out.println("Total amount owe: "+result.getInt("Amount Owed"));
             }
@@ -128,12 +153,13 @@ public class UserController {
     }
 
     private static void checkGroup(int userId) {
-        Connection conn = DatabaseConnection.getDatabaseConnectionInstance();
         String query = "Select * from GroupMembers "
-                +"Where userId = "+userId;
+                +"Where userId = ?;";
         System.out.println(TAG+": check groups: "+query);
         try{
-            ResultSet result = conn.createStatement().executeQuery(query);
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setInt(1, userId);
+            ResultSet result = statement.executeQuery(query);
             while(result.next()) {
                 int groupId = result.getInt("groupId");
                 Group g = GroupRepository.findGroupById(groupId);

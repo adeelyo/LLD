@@ -1,4 +1,4 @@
-package com.LLD.splitwise;
+package com.LLD.splitwise.db;
 import java.sql.*;
 
 public class DatabaseConnection {

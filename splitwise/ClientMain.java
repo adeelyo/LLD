@@ -1,5 +1,7 @@
 package com.LLD.splitwise;
 
+import com.LLD.splitwise.controller.UserController;
+
 import java.util.Scanner;
 
 public class ClientMain {
